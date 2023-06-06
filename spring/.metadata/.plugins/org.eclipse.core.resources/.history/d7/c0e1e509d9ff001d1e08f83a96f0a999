@@ -1,0 +1,39 @@
+package com.example.demo.services;
+
+import com.example.demo.model.Usuario;
+import com.example.demo.model.dao.IusuarioDAO;
+
+public class UsuarioService {
+	private IusuarioDAO iusuarioDAO;
+
+	public UsuarioService(IusuarioDAO iusuarioDAO) {
+		super();
+		this.iusuarioDAO = iusuarioDAO;
+	}
+	  public Usuario guardarUsuario(Usuario usuario) {
+	        // Verificar si ya existe un usuario con el mismo correo electrónico
+	        Usuario usuarioExistente = iusuarioDAO.findByEmail(usuario.getEmail());
+	        if (usuarioExistente != null) {
+	            throw new RuntimeException("Ya existe un usuario con el mismo correo electrónico.");
+	        }
+
+	        // Guardar el usuario en la base de datos
+	        return iusuarioDAO.save(usuario);
+	    }
+	   public Usuario iniciarSesion(String email, String contraseña) {
+	        // Buscar el usuario por correo electrónico
+	        Usuario usuario = iusuarioDAO.findByEmail(email);
+	        if (usuario == null) {
+	            throw new RuntimeException("Usuario no encontrado.");
+	        }
+
+	        // Comprobar si la contraseña coincide
+	        if (!usuario.getContraseña().equals(contraseña)) {
+	            throw new RuntimeException("La contraseña es incorrecta.");
+	        }
+
+	        // Inicio de sesión exitoso
+	        return usuario;
+	    }
+	}
+

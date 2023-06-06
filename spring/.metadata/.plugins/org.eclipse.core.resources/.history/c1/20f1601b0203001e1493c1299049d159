@@ -1,0 +1,48 @@
+package com.example.demo.controller;
+
+import org.springframework.beans.factory.annotation.Autowired;
+
+import org.springframework.http.HttpStatus;
+import org.springframework.http.HttpStatusCode;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
+
+import com.example.demo.model.Usuario;
+import com.example.demo.model.UsuarioDTO;
+import com.example.demo.services.UsuarioService;
+@CrossOrigin(origins = "http://localhost:4200")
+@RestController
+@RequestMapping("/usuarios")
+public class UsuarioRestController {
+	private UsuarioService usuarioService;
+@Autowired
+	public UsuarioRestController(UsuarioService usuarioService) {
+		super();
+		this.usuarioService = usuarioService;
+	}
+@PostMapping("/registro")
+public ResponseEntity<?> registrarUsuario(@RequestBody UsuarioDTO usuarioDTO) {
+
+        Usuario nuevoUsuario = usuarioService.guardarUsuario(usuarioDTO);
+        if(nuevoUsuario!=null) {
+        	return ResponseEntity.status(HttpStatus.CREATED).body("Usuario registrado con éxito. ID: " + nuevoUsuario.getId());
+        }
+        return new ResponseEntity<>("usuario invalido", HttpStatus.NOT_FOUND);
+        
+    
+}
+@PostMapping("/login")
+public ResponseEntity<String> iniciarSesion(@RequestBody UsuarioDTO usuario) {
+    try {
+        Usuario usuario2 = usuarioService.iniciarSesion(usuario);
+        return ResponseEntity.ok("Inicio de sesión exitoso. ID: " + usuario2.getId());
+    } catch (Exception e) {
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(e.getMessage());
+    }
+}
+}

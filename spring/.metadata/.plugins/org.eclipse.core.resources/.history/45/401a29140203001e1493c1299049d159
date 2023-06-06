@@ -1,0 +1,49 @@
+package com.example.demo.services;
+
+import org.springframework.stereotype.Service;
+
+import com.example.demo.model.Usuario;
+import com.example.demo.model.UsuarioDTO;
+import com.example.demo.model.UsuarioRegistroDTO;
+import com.example.demo.model.dao.IusuarioDAO;
+@Service
+public class UsuarioService {
+	private IusuarioDAO iusuarioDAO;
+
+	public UsuarioService(IusuarioDAO iusuarioDAO) {
+		super();
+		this.iusuarioDAO = iusuarioDAO;
+	}
+	  public Usuario guardarUsuario(UsuarioDTO usuario) {
+	        // Verificar si ya existe un usuario con el mismo correo electrónico
+	        Usuario usuarioExistente = iusuarioDAO.findByEmail(usuario.getEmail());
+	        if (usuarioExistente != null) {
+	           return null;
+	        }
+	       Usuario usuarioSave= converToEntidad(usuario);
+	        // Guardar el usuario en la base de datos
+	        return iusuarioDAO.save(usuarioSave);
+	    }
+	  public Usuario converToEntidad(UsuarioDTO usuarioDTO) {
+		  return new Usuario(usuarioDTO.getNombre(), usuarioDTO.getEmail(), usuarioDTO.getContrasena());
+	  }
+	  public UsuarioRegistroDTO convertirUsuarioRegistroDTO(UsuarioRegistroDTO usuarioRegistroDTO) {
+		  return new Usuario(usuarioRegistroDTO.getEmail(),usuarioRegistroDTO.getContrasena());
+	  }
+	   public Usuario iniciarSesion(UsuarioDTO usuario) {
+	        // Buscar el usuario por correo electrónico
+	        Usuario usuario2 = iusuarioDAO.findByEmail(usuario.getEmail());
+	        if (usuario2 == null) {
+	        	throw new RuntimeException("Usuario no encontrado");
+	        }
+
+	        // Comprobar si la contraseña coincide
+	        if (!usuario.getContrasena().equals(usuario2.getContraseña())) {
+	            throw new RuntimeException("La contraseña es incorrecta.");
+	        }
+
+	        // Inicio de sesión exitoso
+	        return usuario2;
+	    }
+	}
+
